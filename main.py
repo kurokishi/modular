@@ -29,8 +29,11 @@ if uploaded_file:
         elif selected_menu == "DCA & Support":
             st.subheader("🔍 Analisis DCA & Support")
             dca_result = analyze_dca(df)
-            support_df = get_support_levels(df)
-            support_result = dict(zip(support_df['Ticker'], support_df['Support']))
+            support_raw = get_support_levels(df)
+            if isinstance(support_raw, list) and isinstance(support_raw[0], dict):
+                support_result = {row['Ticker']: row['Support'] for row in support_raw}
+            else:
+                support_result = {}
 
             # Tampilkan sebagai tabel
             dca_table = []
