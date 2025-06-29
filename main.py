@@ -29,7 +29,8 @@ if uploaded_file:
         elif selected_menu == "DCA & Support":
             st.subheader("🔍 Analisis DCA & Support")
             dca_result = analyze_dca(df)
-            support_result = get_support_levels(df)
+            support_raw = get_support_levels(df)
+            support_result = {row['Ticker']: row['Support'] for row in support_raw}
 
             # Tampilkan sebagai tabel
             dca_table = []
