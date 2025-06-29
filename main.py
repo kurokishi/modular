@@ -53,27 +53,50 @@ if uploaded_file:
             if modal <= 0:
                 st.warning("Masukkan modal yang valid.")
             else:
-                results = []
-                total_cost = 0
+                temp = []
                 for _, row in df.iterrows():
                     ticker = row['Ticker']
                     stock = row['Stock']
+                    avg = row['Avg Price']
                     price = get_current_price(ticker)
                     if np.isnan(price):
                         continue
-                    lot_price = price * 100
-                    max_lot = modal // lot_price
-                    cost = max_lot * lot_price
+                    perf = (price - avg) / avg * 100
+                    temp.append({
+                        'Stock': stock,
+                        'Ticker': ticker,
+                        'Price': price,
+                        'Performance': perf,
+                        'Lot Price': price * 100
+                    })
+
+                perf_df = pd.DataFrame(temp)
+                perf_df = perf_df.sort_values(by='Performance', ascending=False).reset_index(drop=True)
+
+                results = []
+                total_cost = 0
+
+                for _, row in perf_df.iterrows():
+                    max_lot = (modal - total_cost) // row['Lot Price']
+                    cost = max_lot * row['Lot Price']
                     total_cost += cost
                     results.append({
-                        'Saham': stock,
-                        'Harga per Lot (Rp)': lot_price,
+                        'Saham': row['Stock'],
+                        'Harga per Lot (Rp)': row['Lot Price'],
                         'Jumlah Lot': max_lot,
-                        'Total Biaya (Rp)': cost
+                        'Total Biaya (Rp)': cost,
+                        'Performa (%)': row['Performance']
                     })
+
                 remaining = modal - total_cost
+                result_df = pd.DataFrame(results)
+
                 st.write(f"**Total Biaya Pembelian:** Rp {total_cost:,.0f}")
                 st.write(f"**Sisa Modal:** Rp {remaining:,.0f}")
-                st.dataframe(pd.DataFrame(results))
+                st.dataframe(result_df.style.format({
+                    'Harga per Lot (Rp)': 'Rp {:,.0f}',
+                    'Total Biaya (Rp)': 'Rp {:,.0f}',
+                    'Performa (%)': '{:.2f}%'
+                }))
 else:
     st.info("Silakan unggah file CSV portofolio terlebih dahulu.")
