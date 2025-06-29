@@ -63,12 +63,16 @@ if uploaded_file:
                     if np.isnan(price):
                         continue
                     perf = (price - avg) / avg * 100
+                    dividen = np.random.uniform(1.5, 6.5)  # Simulasi dividen
+                    support = price * (1 - np.random.uniform(0.05, 0.15))  # Simulasi support
                     temp.append({
                         'Stock': stock,
                         'Ticker': ticker,
                         'Price': price,
                         'Performance': perf,
-                        'Lot Price': price * 100
+                        'Lot Price': price * 100,
+                        'Dividen (%)': dividen,
+                        'Support Level': support
                     })
 
                 perf_df = pd.DataFrame(temp)
@@ -86,7 +90,9 @@ if uploaded_file:
                         'Harga per Lot (Rp)': row['Lot Price'],
                         'Jumlah Lot': max_lot,
                         'Total Biaya (Rp)': cost,
-                        'Performa (%)': row['Performance']
+                        'Performa (%)': row['Performance'],
+                        'Dividen (%)': row['Dividen (%)'],
+                        'Support (Rp)': row['Support Level']
                     })
 
                 remaining = modal - total_cost
@@ -97,7 +103,9 @@ if uploaded_file:
                 st.dataframe(result_df.style.format({
                     'Harga per Lot (Rp)': 'Rp {:,.0f}',
                     'Total Biaya (Rp)': 'Rp {:,.0f}',
-                    'Performa (%)': '{:.2f}%'
+                    'Performa (%)': '{:.2f}%',
+                    'Dividen (%)': '{:.2f}%',
+                    'Support (Rp)': 'Rp {:,.0f}'
                 }))
 
                 # Grafik alokasi modal
@@ -108,6 +116,7 @@ if uploaded_file:
                     text='Jumlah Lot',
                     title='📊 Alokasi Modal ke Saham Performa Terbaik',
                     color='Performa (%)',
+                    hover_data=['Dividen (%)', 'Support (Rp)'],
                     color_continuous_scale='Blues'
                 )
                 fig.update_traces(textposition='outside')
