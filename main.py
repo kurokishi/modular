@@ -8,6 +8,7 @@ from analysis.recommendation import get_recommendations
 from visualization import show_dca_section, show_portfolio_summary, show_prediction_chart
 import pandas as pd
 import numpy as np
+import plotly.express as px
 
 st.set_page_config(page_title="📈 Analisis Portofolio Saham", layout="wide")
 st.title("📊 Dashboard Portofolio Saham Modular")
@@ -98,5 +99,18 @@ if uploaded_file:
                     'Total Biaya (Rp)': 'Rp {:,.0f}',
                     'Performa (%)': '{:.2f}%'
                 }))
+
+                # Grafik alokasi modal
+                fig = px.bar(
+                    result_df[result_df['Jumlah Lot'] > 0],
+                    x='Saham',
+                    y='Total Biaya (Rp)',
+                    text='Jumlah Lot',
+                    title='📊 Alokasi Modal ke Saham Performa Terbaik',
+                    color='Performa (%)',
+                    color_continuous_scale='Blues'
+                )
+                fig.update_traces(textposition='outside')
+                st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("Silakan unggah file CSV portofolio terlebih dahulu.")
