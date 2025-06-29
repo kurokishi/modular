@@ -30,7 +30,37 @@ if uploaded_file:
             st.subheader("🔍 Analisis DCA & Support")
             dca_result = analyze_dca(df)
             support_result = get_support_levels(df)
-            show_dca_section(dca_result, support_result)
+
+            # Tampilkan sebagai tabel
+            dca_table = []
+            for _, row in dca_result.iterrows():
+                dca_data = row['DCA']
+                support = support_result.get(row['Ticker'], np.nan)
+                current_price = row['Current Price']
+                saran_dca = "🟢 Ya" if current_price <= support else "🔴 Tidak"
+                dca_table.append({
+                    'Saham': row['Stock'],
+                    'Ticker': row['Ticker'],
+                    'Avg Price': row['Avg Price'],
+                    'Current Price': current_price,
+                    'Performance (%)': row['Performance (%)'],
+                    'DCA 6 Bulan': dca_data.get(6, np.nan),
+                    'DCA 12 Bulan': dca_data.get(12, np.nan),
+                    'DCA 24 Bulan': dca_data.get(24, np.nan),
+                    'Support (Rp)': support,
+                    'Saran Waktu DCA': saran_dca
+                })
+
+            dca_df = pd.DataFrame(dca_table)
+            st.dataframe(dca_df.style.format({
+                'Avg Price': 'Rp {:,.0f}',
+                'Current Price': 'Rp {:,.0f}',
+                'DCA 6 Bulan': 'Rp {:,.0f}',
+                'DCA 12 Bulan': 'Rp {:,.0f}',
+                'DCA 24 Bulan': 'Rp {:,.0f}',
+                'Support (Rp)': 'Rp {:,.0f}',
+                'Performance (%)': '{:.2f}%'
+            }))
 
         elif selected_menu == "Prediksi Harga":
             st.subheader("📈 Prediksi Harga (30 hari ke depan)")
